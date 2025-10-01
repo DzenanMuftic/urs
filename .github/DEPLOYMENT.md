@@ -9,10 +9,14 @@ This repository includes automated deployment workflows for the URS WordPress pl
 Go to your repository Settings → Secrets and variables → Actions, and add these secrets:
 
 ```
-SERVER_HOST=65.108.212.64
-SERVER_USER=root
-SERVER_PORT=22
 SERVER_SSH_KEY=<your-private-ssh-key>
+```
+
+**Optional secrets** (the workflow will use defaults if not provided):
+```
+SERVER_HOST=65.108.212.64  # Default: 65.108.212.64
+SERVER_USER=root           # Default: root
+SERVER_PORT=22             # Default: 22
 ```
 
 ### 2. SSH Key Setup
