@@ -2,6 +2,17 @@
 
 A WordPress plugin that provides custom login functionality with Laravel database authentication and user dashboard.
 
+## 🚀 Auto-Deployment
+
+This repository is configured for **automatic deployment** to server `65.108.212.64` on every push to the `main` branch.
+
+📖 **[View Auto-Deployment Setup Guide](AUTO_DEPLOY_SETUP.md)**
+
+### Quick Start for Auto-Deployment:
+1. Configure `SERVER_SSH_KEY` secret in GitHub repository settings
+2. Push code to `main` branch
+3. Plugin automatically deploys to server
+
 ## Features
 
 - **Laravel Database Integration**: Connects to external Laravel database
