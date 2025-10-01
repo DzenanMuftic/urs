@@ -70,11 +70,20 @@ The easiest way to deploy this plugin is using automatic GitHub Actions deployme
 
 ## 📚 Documentation
 
+### Deployment Documentation
 - 📖 **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Complete step-by-step setup for automatic deployment
-- 📋 **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Quick commands and reference card
+- 📋 **[DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)** - Track your setup progress with this checklist
+- 🔄 **[DEPLOYMENT_FLOW.md](DEPLOYMENT_FLOW.md)** - Visual flow diagram of the deployment process
+- 📝 **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Quick commands and reference card
 - 🔧 **[.github/DEPLOYMENT.md](.github/DEPLOYMENT.md)** - Detailed deployment workflow documentation
 - 🛠️ **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
 - ✅ **[verify-setup.sh](verify-setup.sh)** - Automated setup verification script
+
+### Getting Started with Deployment
+1. Follow **[SETUP_GUIDE.md](SETUP_GUIDE.md)** for first-time setup
+2. Use **[DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)** to track progress
+3. Run `./verify-setup.sh` to verify configuration
+4. Push to `main` branch - deployment is automatic!
 
 ## Usage
 
