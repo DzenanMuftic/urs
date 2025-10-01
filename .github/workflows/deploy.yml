@@ -1,0 +1,105 @@
+name: Deploy WordPress Plugin to Server
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.0'
+        
+    - name: Create deployment package
+      run: |
+        mkdir -p deployment/my-custom-login-plugin
+        cp *.php deployment/my-custom-login-plugin/
+        cp *.png deployment/my-custom-login-plugin/
+        cp *.sql deployment/my-custom-login-plugin/
+        cp README.md deployment/my-custom-login-plugin/
+        tar -czf urs-plugin-deployment.tar.gz deployment/
+        
+    - name: Deploy to server via SSH
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT }}
+        script: |
+          # Create backup of existing plugin
+          if [ -d "/var/www/html/wp-content/plugins/my-custom-login-plugin" ]; then
+            sudo cp -r /var/www/html/wp-content/plugins/my-custom-login-plugin /var/www/html/wp-content/plugins/my-custom-login-plugin.backup.$(date +%Y%m%d_%H%M%S)
+          fi
+          
+          # Create plugin directory if it doesn't exist
+          sudo mkdir -p /var/www/html/wp-content/plugins/my-custom-login-plugin
+          
+          # Set proper ownership
+          sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/my-custom-login-plugin
+          sudo chmod -R 755 /var/www/html/wp-content/plugins/my-custom-login-plugin
+          
+          echo "Plugin directory prepared for deployment"
+          
+    - name: Copy files to server
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT }}
+        source: "*.php,*.png,*.sql,README.md"
+        target: "/tmp/plugin-deploy/"
+        
+    - name: Install plugin files
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT }}
+        script: |
+          # Copy files from temp to plugin directory
+          sudo cp -r /tmp/plugin-deploy/* /var/www/html/wp-content/plugins/my-custom-login-plugin/
+          
+          # Set proper permissions
+          sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/my-custom-login-plugin
+          sudo chmod -R 755 /var/www/html/wp-content/plugins/my-custom-login-plugin
+          
+          # Clean up temp files
+          rm -rf /tmp/plugin-deploy
+          
+          # Restart Apache to ensure changes take effect
+          sudo systemctl reload apache2
+          
+          echo "✅ Plugin deployed successfully!"
+          echo "📍 Plugin location: /var/www/html/wp-content/plugins/my-custom-login-plugin"
+          echo "🌐 WordPress URL: http://$(curl -s ifconfig.me || hostname -I | awk '{print $1}')"
+          
+    - name: Verify deployment
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT }}
+        script: |
+          echo "=== Deployment Verification ==="
+          echo "Plugin files:"
+          ls -la /var/www/html/wp-content/plugins/my-custom-login-plugin/
+          echo ""
+          echo "File permissions:"
+          ls -ld /var/www/html/wp-content/plugins/my-custom-login-plugin/
+          echo ""
+          echo "Apache status:"
+          sudo systemctl status apache2 --no-pager -l

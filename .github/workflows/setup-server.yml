@@ -1,0 +1,123 @@
+name: Setup WordPress Server
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_ip:
+        description: 'Server IP Address'
+        required: true
+        default: '65.108.212.64'
+
+jobs:
+  setup-server:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Setup WordPress on Server
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ github.event.inputs.server_ip || '65.108.212.64' }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT }}
+        script: |
+          echo "🚀 Starting WordPress installation on $(hostname)"
+          
+          # Update system
+          sudo apt update
+          
+          # Install LAMP stack
+          echo "📦 Installing Apache, PHP, MySQL..."
+          sudo apt install -y apache2 php php-mysql php-curl php-gd php-mbstring php-xml php-zip php-json mysql-server wget unzip curl
+          
+          # Start and enable services
+          echo "🔧 Starting services..."
+          sudo systemctl start apache2
+          sudo systemctl enable apache2
+          sudo systemctl start mysql
+          sudo systemctl enable mysql
+          
+          # Download WordPress
+          echo "⬇️ Downloading WordPress..."
+          cd /tmp
+          wget -q https://wordpress.org/latest.tar.gz
+          tar xzf latest.tar.gz
+          
+          # Install WordPress
+          echo "📁 Installing WordPress..."
+          sudo cp -R /tmp/wordpress/* /var/www/html/
+          sudo chown -R www-data:www-data /var/www/html
+          sudo chmod -R 755 /var/www/html
+          
+          # Setup database
+          echo "🗄️ Setting up database..."
+          sudo mysql -e "CREATE DATABASE IF NOT EXISTS wordpress CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+          sudo mysql -e "CREATE USER IF NOT EXISTS 'wpuser'@'localhost' IDENTIFIED BY 'wp$(openssl rand -base64 12)';"
+          sudo mysql -e "GRANT ALL PRIVILEGES ON wordpress.* TO 'wpuser'@'localhost';"
+          sudo mysql -e "FLUSH PRIVILEGES;"
+          
+          # Configure WordPress
+          echo "⚙️ Configuring WordPress..."
+          cd /var/www/html
+          sudo cp wp-config-sample.php wp-config.php
+          
+          # Generate WordPress salts
+          SALTS=$(curl -s https://api.wordpress.org/secret-key/1.1/salt/)
+          sudo sed -i "/AUTH_KEY/,/NONCE_SALT/d" wp-config.php
+          echo "$SALTS" | sudo tee -a wp-config.php > /dev/null
+          
+          # Update database configuration
+          sudo sed -i "s/database_name_here/wordpress/g" wp-config.php
+          sudo sed -i "s/username_here/wpuser/g" wp-config.php
+          sudo sed -i "s/password_here/wp$(openssl rand -base64 12)/g" wp-config.php
+          
+          # Create plugin directory
+          echo "📂 Creating plugin directory..."
+          sudo mkdir -p /var/www/html/wp-content/plugins/my-custom-login-plugin
+          sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/my-custom-login-plugin
+          
+          # Configure Apache
+          echo "🌐 Configuring Apache..."
+          sudo a2enmod rewrite
+          
+          # Create WordPress virtual host
+          sudo tee /etc/apache2/sites-available/wordpress.conf > /dev/null <<EOF
+          <VirtualHost *:80>
+              DocumentRoot /var/www/html
+              ServerName $(hostname -I | awk '{print $1}')
+              
+              <Directory /var/www/html>
+                  AllowOverride All
+                  Require all granted
+              </Directory>
+              
+              ErrorLog \${APACHE_LOG_DIR}/wordpress_error.log
+              CustomLog \${APACHE_LOG_DIR}/wordpress_access.log combined
+          </VirtualHost>
+          EOF
+          
+          sudo a2ensite wordpress.conf
+          sudo a2dissite 000-default.conf
+          
+          # Restart Apache
+          sudo systemctl restart apache2
+          
+          # Configure firewall
+          echo "🔥 Configuring firewall..."
+          sudo ufw allow 22/tcp
+          sudo ufw allow 80/tcp
+          sudo ufw allow 443/tcp
+          sudo ufw --force enable
+          
+          # Clean up
+          rm -rf /tmp/wordpress /tmp/latest.tar.gz
+          
+          echo ""
+          echo "✅ WordPress installation completed!"
+          echo "🌐 Visit: http://$(curl -s ifconfig.me || hostname -I | awk '{print $1}')"
+          echo "📂 WordPress path: /var/www/html"
+          echo "📁 Plugin path: /var/www/html/wp-content/plugins/my-custom-login-plugin"
+          echo ""
+          echo "Next steps:"
+          echo "1. Complete WordPress setup via web interface"
+          echo "2. Run the deployment workflow to install the URS plugin"
