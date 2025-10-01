@@ -1,6 +1,44 @@
 # My Custom Login Plugin - Laravel Integration
 
+[![Deploy Status](https://github.com/DzenanMuftic/urs/actions/workflows/deploy.yml/badge.svg)](https://github.com/DzenanMuftic/urs/actions/workflows/deploy.yml)
+
 A WordPress plugin that provides custom login functionality with Laravel database authentication and user dashboard.
+
+> 📚 **[Complete Documentation Index](DOCUMENTATION_INDEX.md)** - Navigate all deployment and setup documentation
+
+## 🚀 Automatic Deployment
+
+This plugin features **automatic deployment** to your server! Every push to the `main` branch automatically deploys to http://65.108.212.64/
+
+### How It Works
+
+```
+┌─────────────┐      ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+│   Developer │      │   GitHub    │      │   GitHub    │      │   Server    │
+│             │─────▶│ Repository  │─────▶│   Actions   │─────▶│ 65.108.212  │
+│  git push   │      │    (main)   │      │  Workflow   │      │    .64      │
+└─────────────┘      └─────────────┘      └─────────────┘      └─────────────┘
+                                                │
+                                                ▼
+                                          ┌─────────────┐
+                                          │   Plugin    │
+                                          │    Live!    │
+                                          └─────────────┘
+```
+
+**Setup automatic deployment:**
+- 📖 **Complete Guide**: [SETUP_GUIDE.md](SETUP_GUIDE.md) - Step-by-step setup instructions
+- 📋 **Deployment Docs**: [.github/DEPLOYMENT.md](.github/DEPLOYMENT.md) - Workflow details
+- 🔧 **Quick Reference**: [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Command cheat sheet
+- 🛠️ **Troubleshooting**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Fix common issues
+
+**Quick setup:**
+```bash
+# 1. Configure GitHub Secrets (see SETUP_GUIDE.md)
+# 2. Push to main branch
+git push origin main
+# 3. Plugin automatically deploys to server!
+```
 
 ## Features
 
@@ -17,10 +55,37 @@ A WordPress plugin that provides custom login functionality with Laravel databas
 
 ## Installation
 
+### Automatic Deployment (Recommended)
+
+The easiest way to deploy this plugin is using automatic GitHub Actions deployment:
+
+1. **Setup (One Time)**: Follow [SETUP_GUIDE.md](SETUP_GUIDE.md) to configure automatic deployment
+2. **Deploy**: Just push to main branch - automatic deployment handles the rest!
+3. **Monitor**: Check deployment status at [GitHub Actions](https://github.com/DzenanMuftic/urs/actions)
+
+### Manual Installation
+
 1. Upload the `my-custom-login-plugin` folder to your `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Configure database settings in the main plugin file if needed
 4. Test connection using `[custom_db_test]` shortcode (debug mode)
+
+## 📚 Documentation
+
+### Deployment Documentation
+- 📖 **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Complete step-by-step setup for automatic deployment
+- 📋 **[DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)** - Track your setup progress with this checklist
+- 🔄 **[DEPLOYMENT_FLOW.md](DEPLOYMENT_FLOW.md)** - Visual flow diagram of the deployment process
+- 📝 **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Quick commands and reference card
+- 🔧 **[.github/DEPLOYMENT.md](.github/DEPLOYMENT.md)** - Detailed deployment workflow documentation
+- 🛠️ **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
+- ✅ **[verify-setup.sh](verify-setup.sh)** - Automated setup verification script
+
+### Getting Started with Deployment
+1. Follow **[SETUP_GUIDE.md](SETUP_GUIDE.md)** for first-time setup
+2. Use **[DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)** to track progress
+3. Run `./verify-setup.sh` to verify configuration
+4. Push to `main` branch - deployment is automatic!
 
 ## Usage
 
