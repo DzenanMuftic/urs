@@ -4,6 +4,8 @@
 
 A WordPress plugin that provides custom login functionality with Laravel database authentication and user dashboard.
 
+> 📚 **[Complete Documentation Index](DOCUMENTATION_INDEX.md)** - Navigate all deployment and setup documentation
+
 ## 🚀 Automatic Deployment
 
 This plugin features **automatic deployment** to your server! Every push to the `main` branch automatically deploys to http://65.108.212.64/
